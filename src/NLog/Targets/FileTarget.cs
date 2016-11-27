@@ -2074,7 +2074,7 @@ namespace NLog.Targets
 
             appender.Write(bytes);
 
-            if (this.AutoFlush && this.MinAutoFlushLevel <= logEvent.Level)
+            if (this.AutoFlush && (logEvent == null || this.MinAutoFlushLevel <= logEvent.Level))
             {
                 appender.Flush();
             }
