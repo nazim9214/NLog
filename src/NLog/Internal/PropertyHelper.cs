@@ -88,6 +88,7 @@ namespace NLog.Internal
 
                 if (!(TryNLogSpecificConversion(propertyType, value, out newValue, configurationItemFactory)
                     || TryGetEnumValue(propertyType, value, out newValue, true)
+                    || TryGetLogLevelValue(propertyType, value, out newValue)
                     || TryImplicitConversion(propertyType, value, out newValue)
                     || TrySpecialConversion(propertyType, value, out newValue)
                     || TryFlatListConversion(propertyType, value, out newValue)
@@ -264,6 +265,24 @@ namespace NLog.Internal
                 result = enumField.GetValue(null);
                 return true;
             }
+        }
+
+        /// <summary>
+        /// Tries to get LogLevel value from string,
+        /// if target value is LogLevel
+        /// </summary>
+        /// <param name="type">Target type</param>
+        /// <param name="value">String value</param>
+        /// <param name="newValue">Converted LogLevel value</param>
+        private static bool TryGetLogLevelValue(Type type, string value, out object newValue)
+        {
+            if (type == typeof(LogLevel))
+            {
+                newValue = LogLevel.FromString(value);
+                return true;
+            }
+            newValue = null;
+            return false;
         }
 
         private static bool TrySpecialConversion(Type type, string value, out object newValue)

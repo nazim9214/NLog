@@ -248,7 +248,7 @@ namespace NLog.UnitTests
             }
             Assert.Equal(encodedBuf.Length, fi.Length);
             byte[] buf = new byte[(int)fi.Length];
-            using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read))
+            using (FileStream fs = new FileStream(fileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
             {
                 fs.Read(buf, 0, buf.Length);
             }

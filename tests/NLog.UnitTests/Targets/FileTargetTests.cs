@@ -1836,6 +1836,61 @@ namespace NLog.UnitTests.Targets
             }
         }
 
+
+        [Fact]
+        public void AutoFlushConfigurationTest()
+        {
+            string config = @"<nlog throwExceptions='true'>
+    <targets>
+      <target name='file1' filename='log.txt' type='File' MinAutoFlushLevel='Error' />
+    </targets>
+    <rules>
+      <logger name='*' minlevel='Trace' writeTo='file1' />
+    </rules>
+</nlog>";
+
+            LogManager.Configuration = CreateConfigurationFromString(config);
+            Assert.Equal(LogLevel.Error, (LogManager.Configuration.FindTargetByName("file1") as FileTarget).MinAutoFlushLevel);
+        }
+
+        [Fact]
+        public void AutoFlushConditionTest()
+        {
+            var tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            string logFile = Path.Combine(tempPath, "test.txt");
+            try
+            {
+                var fileTarget = WrapFileTarget(new FileTarget
+                {
+                    FileName = logFile,
+                    AutoFlush = true,
+                    ConcurrentWrites = false,
+                    KeepFileOpen = true,
+                    LineEnding = LineEndingMode.LF,
+                    Layout = "${message}",
+                    MinAutoFlushLevel = LogLevel.Error
+                });
+
+                SimpleConfigurator.ConfigureForTargetLogging(fileTarget, LogLevel.Trace);
+
+                logger.Trace("TraceTest");
+                AssertFileContents(logFile,
+                    string.Empty, Encoding.UTF8);
+                logger.Warn("WarnTest");
+                AssertFileContents(logFile,
+                    string.Empty, Encoding.UTF8);
+                logger.Error("ErrorTest");
+                AssertFileContents(logFile,
+                    "TraceTest\nWarnTest\nErrorTest\n", Encoding.UTF8);
+            }
+            finally
+            {
+                LogManager.Configuration = null;
+                if (Directory.Exists(tempPath))
+                    Directory.Delete(tempPath, true);
+            }
+        }
+
         [Fact]
         public void DisposingFileTarget_WhenNotIntialized_ShouldNotThrow()
         {

@@ -166,6 +166,7 @@ namespace NLog.Targets
         {
             this.ArchiveNumbering = ArchiveNumberingMode.Sequence;
             this.maxArchiveFiles = 0;
+            this.MinAutoFlushLevel = LogLevel.MinLevel;
             this.ConcurrentWriteAttemptDelay = 1;
             this.ArchiveEvery = FileArchivePeriod.None;
             this.ArchiveAboveSize = FileTarget.ArchiveAboveSizeDisabled;
@@ -400,11 +401,19 @@ namespace NLog.Targets
         }
 
         /// <summary>
-        /// Gets or sets a value indicating whether to automatically flush the file buffers after each log message.
+        /// Gets or sets a value indicating whether to automatically flush the file buffers after each log message
+        /// with log level less or equal to <see cref="MinAutoFlushLevel"/> .
         /// </summary>
         /// <docgen category='Performance Tuning Options' order='10' />
         [DefaultValue(true)]
         public bool AutoFlush { get; set; }
+
+        /// <summary>
+        /// Inidcates minimum message LogLevel on which automatically flush the file buffers,
+        /// when <see cref="AutoFlush"/> is true.
+        /// Default value is LogLevel.MinLevel(flush on every message).
+        /// </summary>
+        public LogLevel MinAutoFlushLevel { get; set; }
 
         /// <summary>
         /// Gets or sets the number of files to be kept open. Setting this to a higher value may improve performance
@@ -2065,7 +2074,7 @@ namespace NLog.Targets
 
             appender.Write(bytes);
 
-            if (this.AutoFlush)
+            if (this.AutoFlush && this.MinAutoFlushLevel <= logEvent.Level)
             {
                 appender.Flush();
             }
