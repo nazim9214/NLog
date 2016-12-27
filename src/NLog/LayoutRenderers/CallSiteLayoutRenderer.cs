@@ -57,7 +57,7 @@ namespace NLog.LayoutRenderers
         {
             this.ClassName = true;
             this.MethodName = true;
-            this.CleanNamesOfAnonymousDelegates = false;
+            this.CleanNamesOfAnonymousDelegates = true;
             this.IncludeNamespace = true;
 #if !SILVERLIGHT
             this.FileName = false;
@@ -90,7 +90,7 @@ namespace NLog.LayoutRenderers
         /// Gets or sets a value indicating whether the method name will be cleaned up if it is detected as an anonymous delegate.
         /// </summary>
         /// <docgen category='Rendering Options' order='10' />
-        [DefaultValue(false)]
+        [DefaultValue(true)]
         public bool CleanNamesOfAnonymousDelegates { get; set; }
 
         /// <summary>
